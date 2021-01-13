@@ -33,11 +33,30 @@ class Interpolation:
         memo_object[indexing_string] = y
         return memo_object[indexing_string]
 
+    def interpolate_iteratively(self, point_array=[], n=0):
+        interpolation_points = np.array(point_array)
+        x_data_series = interpolation_points[:, 0].tolist()
+        y_data_series = interpolation_points[:, 1].tolist()
+
+        final_val = 0
+        for j in range(0, len(y_data_series)):
+            numerator_of_the_fraction = 1
+            denominator_of_the_fraction = 1
+            for i in range(0, len(x_data_series)):
+                if i != j:
+                    numerator_of_the_fraction *= n - x_data_series[i]
+                    denominator_of_the_fraction *= x_data_series[j] - x_data_series[i]
+            final_val += numerator_of_the_fraction / denominator_of_the_fraction * y_data_series[j]
+        return final_val
+
 
 if __name__ == '__main__':
     interpolation = Interpolation()
-    points_to_interpolate = [[6, 12], [15, 5], [4, 20], [8, 6], [1, 4]]
-    test_points = np.linspace(0, 16, 50)
+    test_points = np.linspace(0, 20, 50)
+    plt.plot()
+    plt.ylim([-10, 10])
+    plt.xlim([0, 20])
+    points_to_interpolate = plt.ginput(5)
     T_2 = np.array(points_to_interpolate)
     x_start_data = T_2[:, 0].tolist()
     y_start_data = T_2[:, 1].tolist()
@@ -46,20 +65,16 @@ if __name__ == '__main__':
     latex_string = printing.latex(interpolated_function)
 
     x = symbols('x')
-    y_values = [interpolated_function.subs(x, a) for a in test_points]
+    y_recursive_values = [interpolated_function.subs(x, a) for a in test_points]
+    y_iterative_values = [interpolation.interpolate_iteratively(point_array=points_to_interpolate, n=a) for a in
+                          test_points]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax1 = fig.add_subplot(211)
-    ax2 = fig.add_subplot(212)
-
-    ax1.plot(test_points, y_values, label="Recursive")
-    ax1.scatter(x_start_data, y_start_data, marker='x', c="r", label='Given points')
-    ax1.legend()
-    ax1.set_xlim([test_points[0], test_points[-1]])
-    ax.set_xlabel("X")
-    ax.set_ylabel("Polynomial value at X point")
-    title = f"${latex_string}$"
-    ax.set_title(title)
-    plt.savefig("polynomial_comparison.png")
+    plt.plot(test_points, y_recursive_values, '--', label="Recursive")
+    plt.plot(test_points, y_iterative_values, '.', label="Iterative")
+    plt.scatter(x_start_data, y_start_data, marker='x', c="k", label='Given points')
+    plt.title(f"${latex_string}$")
+    plt.xlabel('x')
+    plt.ylabel('Polynomial value at X point')
+    plt.legend()
     plt.show()
+    plt.savefig("polynomial_comparison.png")
