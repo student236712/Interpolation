@@ -68,6 +68,7 @@ if __name__ == '__main__':
     y_recursive_values = [interpolated_function.subs(x, a) for a in test_points]
     y_iterative_values = [interpolation.interpolate_iteratively(point_array=points_to_interpolate, n=a) for a in
                           test_points]
+    print(points_to_interpolate)
 
     plt.plot(test_points, y_recursive_values, '--', label="Recursive")
     plt.plot(test_points, y_iterative_values, '.', label="Iterative")
@@ -76,5 +77,5 @@ if __name__ == '__main__':
     plt.xlabel('x')
     plt.ylabel('Polynomial value at X point')
     plt.legend()
+    plt.savefig("polynomial_comparison_2.png")
     plt.show()
-    plt.savefig("polynomial_comparison.png")
