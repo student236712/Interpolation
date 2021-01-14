@@ -1,6 +1,8 @@
 from sympy import *
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime
+import time
 
 
 class Interpolation:
@@ -52,30 +54,41 @@ class Interpolation:
 
 if __name__ == '__main__':
     interpolation = Interpolation()
-    test_points = np.linspace(0, 20, 50)
+    test_points_amount = 50
+    first_test_point = 0
+    last_test_point = 20
+    test_points = np.linspace(first_test_point, last_test_point, test_points_amount)
     plt.plot()
     plt.ylim([-10, 10])
     plt.xlim([0, 20])
     points_to_interpolate = plt.ginput(5)
+
     T_2 = np.array(points_to_interpolate)
     x_start_data = T_2[:, 0].tolist()
     y_start_data = T_2[:, 1].tolist()
 
+    tic = time.perf_counter()
     interpolated_function = interpolation.interpolate_recursively(point_array=points_to_interpolate)
-    latex_string = printing.latex(interpolated_function)
 
     x = symbols('x')
-    y_recursive_values = [interpolated_function.subs(x, a) for a in test_points]
+    f = lambdify(x, interpolated_function, "numpy")
+    y_recursive_values = f(test_points)
+    toc = time.perf_counter()
+    recursive_time = toc - tic
+    latex_string = printing.latex(interpolated_function)
+
+    tic = time.perf_counter()
     y_iterative_values = [interpolation.interpolate_iteratively(point_array=points_to_interpolate, n=a) for a in
                           test_points]
-    print(points_to_interpolate)
+    toc = time.perf_counter()
+    iterative_time = toc - tic
 
-    plt.plot(test_points, y_recursive_values, '--', label="Recursive")
-    plt.plot(test_points, y_iterative_values, '.', label="Iterative")
+    plt.plot(test_points, y_recursive_values, '--', label=f"Recursive {recursive_time:0.4f} seconds")
+    plt.plot(test_points, y_iterative_values, '.', label=f"Iterative {iterative_time:0.4f} seconds")
     plt.scatter(x_start_data, y_start_data, marker='x', c="k", label='Given points')
     plt.title(f"${latex_string}$")
-    plt.xlabel('x')
+    plt.xlabel(f'x - for {test_points_amount} points {first_test_point, last_test_point}')
     plt.ylabel('Polynomial value at X point')
     plt.legend()
-    plt.savefig("polynomial_comparison_2.png")
+    plt.savefig(f"polynomial_comparison{datetime.now()}.png")
     plt.show()
