@@ -67,19 +67,23 @@ if __name__ == '__main__':
     x_start_data = T_2[:, 0].tolist()
     y_start_data = T_2[:, 1].tolist()
 
+    # Start measuring time
     tic = time.perf_counter()
     interpolated_function = interpolation.interpolate_recursively(point_array=points_to_interpolate)
 
     x = symbols('x')
     f = lambdify(x, interpolated_function, "numpy")
     y_recursive_values = f(test_points)
+    # Stop measuring time
     toc = time.perf_counter()
     recursive_time = toc - tic
     latex_string = printing.latex(interpolated_function)
 
+    # Start measuring time
     tic = time.perf_counter()
-    y_iterative_values = [interpolation.interpolate_iteratively(point_array=points_to_interpolate, n=a) for a in
-                          test_points]
+    y_iterative_values = [interpolation.interpolate_iteratively(point_array=points_to_interpolate, n=a)
+                          for a in test_points]
+    # Stop measuring time
     toc = time.perf_counter()
     iterative_time = toc - tic
 
